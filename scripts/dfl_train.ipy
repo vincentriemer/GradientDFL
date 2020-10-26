@@ -51,7 +51,7 @@ def run_training(autobackup_every_hour="",
     cmd += " --silent-start"
 
     child = pexpect.spawn(cmd, timeout=600)
-    child.logfile_read = sys.stdout
+    child.logfile_read = sys.stdout.buffer
 
     child.expect_exact("Press enter in 2 seconds to override model settings")
     child.sendline("")
