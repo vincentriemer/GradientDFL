@@ -1,0 +1,30 @@
+%cd /
+
+print("Checking Environment...")
+!nvidia-smi
+!nvcc -version
+
+print("Fixing semaphore_tracker.py...")
+fin = open("/usr/lib/python3.6/multiprocessing/semaphore_tracker.py", "rt")
+data = fin.read()
+data = data.replace('if cache:', 'if False:')
+fin.close()
+
+fin = open("/usr/lib/python3.6/multiprocessing/semaphore_tracker.py", "wt")
+fin.write(data)
+fin.close()
+
+print("Cloning DeepFaceLab...")
+!git clone https://github.com/iperov/DeepFaceLab.git
+
+print("Installing Python Dependencies...")
+!pip uninstall -y tensorflow
+!pip install -r /DeepFaceLab/requirements-colab.txt
+!pip install --upgrade scikit-image pexpect psutil argparse gradient-statsd
+
+print("Installing system dependencies...")
+!apt-get update
+!apt-get -y install zip unzip
+
+print("Finished Setup!")
+
