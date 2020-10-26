@@ -114,8 +114,7 @@ def run_training(autobackup_every_hour="",
     # if idx == 1:
     #   child.expect_exact("Loading samples:")
     #   child.expect_exact("Sort by yaw:")
-    child.expect_exact(
-        'Starting. Press "Enter" to stop training and save model.')
+    child.expect_exact('Press "Enter" to stop training and save model.')
 
     child.logfile_read = None
 

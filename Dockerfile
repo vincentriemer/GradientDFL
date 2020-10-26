@@ -1,4 +1,4 @@
-FROM ufoym/deepo:all-py36
+FROM ufoym/deepo:all-py36-cu100
 
 COPY scripts /scripts
 
