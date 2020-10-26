@@ -2,7 +2,7 @@
 
 print("Checking Environment...")
 !nvidia-smi
-!nvcc -version
+!nvcc --version
 
 print("Fixing semaphore_tracker.py...")
 fin = open("/usr/lib/python3.6/multiprocessing/semaphore_tracker.py", "rt")
