@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 
-ipython /scripts/setup.ipy
-ipython /scripts/dfl_train.ipy -- $@
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+ipython $DIR/setup.ipy
+ipython $DIR/dfl_train.ipy -- $@
