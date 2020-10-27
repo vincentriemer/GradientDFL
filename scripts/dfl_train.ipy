@@ -25,7 +25,6 @@ DST_LOSS = 'destination_loss'
 TrainingIterationRe = r"\[\d\d:\d\d:\d\d\]\[#(\d+)\]\[(\d+)ms\]\[([\d.]+)\]\[([\d.]+)\]"
 BooleanChoices = ["y", "n", ""]
 
-
 def num(s):
     try:
         return int(s)
@@ -54,7 +53,6 @@ def run_training(autobackup_every_hour="",
                  color_transfer="",
                  gradient_clipping="",
                  pretraining_mode=""):
-    print("is_colab: {}".format(is_colab))
     client = Client()
 
     cmd = "python /DeepFaceLab/main.py train"
@@ -129,14 +127,11 @@ def run_training(autobackup_every_hour="",
     # if idx == 1:
     #   child.expect_exact("Loading samples:")
     #   child.expect_exact("Sort by yaw:")
-    child.expect_exact('Press "Enter" to stop training and save model.')
-
-    child.logfile = None
-
-    print("Starting training...")
 
     expect_config = [TrainingIterationRe, pexpect.EOF, pexpect.TIMEOUT]
-    expect_idx = child.expect(expect_config, timeout=300)
+    expect_idx = child.expect(expect_config, timeout=600)
+    child.logfile = None
+
     while expect_idx == 0:
         iter_string = child.after
         match = re.search(TrainingIterationRe, iter_string)
@@ -146,20 +141,19 @@ def run_training(autobackup_every_hour="",
         src_loss_value = num(match.group(3))
         dst_loss_value = num(match.group(4))
 
+        print('[#{}][{}ms][{}][{}]'.format(
+            current_iteration, iteration_time, src_loss_value, dst_loss_value), end="\n")
+
         client.gauge(ITERATION_COUNT, current_iteration)
         client.gauge(ITERATION_SPEED, iteration_time)
         client.gauge(SRC_LOSS, src_loss_value)
         client.gauge(DST_LOSS, dst_loss_value)
 
-        print('[#{}][{}ms][{}][{}]'.format(
-            current_iteration, iteration_time, src_loss_value, dst_loss_value), end="\n")
-
-        if current_iteration % 1000 == 0:
-            update_model_artifact()
-        
         expect_idx = child.expect(expect_config, timeout=60)
     
     print(child.before)
+    print("Saving final artifact...")
+    update_model_artifact()
 
 
 def main():
