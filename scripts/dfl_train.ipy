@@ -32,6 +32,10 @@ def num(s):
     except ValueError:
         return float(s)
 
+def update_model_artifact():
+    os.system('zip -r -q /artifacts/model.zip /storage/workspace/model')
+    print('Updated Model Artifact!')
+
 
 def run_training(autobackup_every_hour="",
                  write_preview_history="",
@@ -129,11 +133,12 @@ def run_training(autobackup_every_hour="",
 
     child.logfile = None
 
-    Done = False
-    while not Done:
-        child.expect(TrainingIterationRe)
+    print("Starting training...")
 
-        iter_string = child.after.decode("utf-8")
+    expect_config = [TrainingIterationRe, pexpect.EOF, pexpect.TIMEOUT]
+    expect_idx = child.expect(expect_config, timeout=300)
+    while expect_idx == 0:
+        iter_string = child.after
         match = re.search(TrainingIterationRe, iter_string)
 
         current_iteration = num(match.group(1))
@@ -150,8 +155,11 @@ def run_training(autobackup_every_hour="",
             current_iteration, iteration_time, src_loss_value, dst_loss_value), end="\n")
 
         if current_iteration % 1000 == 0:
-            os.system('zip -r -q /artifacts/model.zip /storage/workspace/model')
-            print('Updated Model Artifact!')
+            update_model_artifact()
+        
+        expect_idx = child.expect(expect_config, timeout=60)
+    
+    print(child.before)
 
 
 def main():
