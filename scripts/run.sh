@@ -3,4 +3,4 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 ipython $DIR/setup.ipy
-python $DIR/dfl_train.py $@
+ipython $DIR/dfl_train.py -- $@
