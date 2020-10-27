@@ -6,6 +6,16 @@ import signal
 import pexpect
 import re
 from gradient_statsd import Client
+from contextlib import redirect_stdout
+
+try:
+    import IPython #if success we are in colab
+    from IPython.display import display, clear_output
+    import PIL
+    import matplotlib.pyplot as plt
+    is_colab = True
+except:
+    is_colab = False
 
 ITERATION_COUNT = 'iteration_count'
 ITERATION_SPEED = 'iteration_speed'
@@ -40,6 +50,7 @@ def run_training(autobackup_every_hour="",
                  color_transfer="",
                  gradient_clipping="",
                  pretraining_mode=""):
+    print("is_colab: {}".format(is_colab))
     client = Client()
 
     cmd = "python /DeepFaceLab/main.py train"
@@ -50,8 +61,8 @@ def run_training(autobackup_every_hour="",
     cmd += " --model SAEHD"
     cmd += " --silent-start"
 
-    child = pexpect.spawn(cmd, timeout=600)
-    child.logfile_read = sys.stdout.buffer
+    child = pexpect.spawn(cmd, timeout=300, encoding='utf-8', echo=False)
+    child.logfile = sys.stdout
 
     child.expect_exact("Press enter in 2 seconds to override model settings")
     child.sendline("")
@@ -116,7 +127,7 @@ def run_training(autobackup_every_hour="",
     #   child.expect_exact("Sort by yaw:")
     child.expect_exact('Press "Enter" to stop training and save model.')
 
-    child.logfile_read = None
+    child.logfile = None
 
     Done = False
     while not Done:
